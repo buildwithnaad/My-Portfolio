@@ -106,6 +106,7 @@
     <label class="relative inline-flex items-center cursor-pointer" id="themeLabel">
         <input type="checkbox" id="themeToggle" class="sr-only peer">
 
+        
         <!-- Background track -->
         <div class="w-14 h-8 bg-gray-300 dark:bg-gray-700 rounded-full peer-checked:bg-gray-800 transition-all duration-300"></div>
 
