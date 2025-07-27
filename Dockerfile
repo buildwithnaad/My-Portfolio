@@ -1,3 +1,4 @@
+# --- First Stage: Node Build ---
 FROM node:18-alpine as node
 
 WORKDIR /var/www
@@ -5,11 +6,10 @@ WORKDIR /var/www
 # Copy Laravel project files
 COPY . .
 
-# Install JS dependencies
+# Install JS dependencies & build assets
 RUN npm install && npm run build
 
-# ------------------------------------
-
+# --- Final Stage: PHP + Composer ---
 FROM php:8.2-fpm
 
 WORKDIR /var/www
@@ -33,8 +33,11 @@ RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy code and assets from node build
+# Copy only necessary folders from Node stage
 COPY --from=node /var/www /var/www
+
+# ✅ FIX: Ensure public/build assets are kept
+COPY --from=node /var/www/public/build /var/www/public/build
 
 # Install PHP dependencies
 RUN composer install --optimize-autoloader --no-dev
