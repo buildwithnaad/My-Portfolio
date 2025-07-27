@@ -1,7 +1,8 @@
-FROM php:8.3-fpm
+FROM php:8.3-cli
 
 WORKDIR /var/www
 
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -12,24 +13,25 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     libzip-dev \
+    npm \
+    nodejs \
     && docker-php-ext-install pdo_mysql mbstring zip exif pcntl bcmath gd
 
+# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Copy project files
 COPY . /var/www
 
-RUN composer install --optimize-autoloader --no-dev
+# Set permissions
+RUN chown -R www-data:www-data /var/www
 
-# Install Node.js
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-RUN apt-get install -y nodejs
+# Install PHP dependencies
+RUN composer install --optimize-autoloader --no-dev
 
 # Build frontend assets
 RUN npm install && npm run build
 
-
-RUN chown -R www-data:www-data /var/www
-
 EXPOSE 8080
 
-CMD php artisan serve --host=0.0.0.0 --port=8080
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
