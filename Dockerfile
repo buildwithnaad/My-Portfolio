@@ -42,6 +42,9 @@ COPY --from=node /var/www/public/build /var/www/public/build
 # Install PHP dependencies
 RUN composer install --optimize-autoloader --no-dev
 
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
 # Set permissions
 RUN chmod -R 777 storage bootstrap/cache
 
