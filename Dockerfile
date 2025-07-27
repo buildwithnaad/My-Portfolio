@@ -1,36 +1,43 @@
+FROM node:18-alpine as node
+
+WORKDIR /var/www
+
+# Copy Laravel project files
+COPY . .
+
+# Install JS dependencies
+RUN npm install && npm run build
+
+# ------------------------------------
+
 FROM php:8.2-fpm
 
-# Node.js install
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get update && apt-get install -y nodejs
+WORKDIR /var/www
 
-# Install system deps
-RUN apt-get install -y \
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
     git \
     curl \
-    unzip \
-    zip \
     libpng-dev \
     libonig-dev \
-    libxml2-dev
+    libxml2-dev \
+    zip \
+    unzip \
+    libzip-dev \
+    libjpeg-dev \
+    libfreetype6-dev
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
 
-# Composer
+# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set workdir
-WORKDIR /var/www
+# Copy code and assets from node build
+COPY --from=node /var/www /var/www
 
-# Copy app
-COPY . .
-
-# Install PHP deps
-RUN composer install --no-dev --optimize-autoloader
-
-# Install JS deps and build
-RUN npm install && npm run build
+# Install PHP dependencies
+RUN composer install --optimize-autoloader --no-dev
 
 # Set permissions
 RUN chmod -R 777 storage bootstrap/cache
