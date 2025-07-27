@@ -23,15 +23,21 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy project files
 COPY . /var/www
 
-# Set permissions
+# Permissions
 RUN chown -R www-data:www-data /var/www
 
-# Install PHP dependencies
+# Install Laravel dependencies
 RUN composer install --optimize-autoloader --no-dev
 
-# Build frontend assets
+# Build frontend
 RUN npm install && npm run build
 
+# Move to public dir
+WORKDIR /var/www/public
+
+# Expose port
 EXPOSE 8080
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
+# Start server
+CMD php /var/www/artisan serve --host=0.0.0.0 --port=8080 > /dev/stdout 2>&1
+php artisan serve --host=0.0.0.0 --port=8080
