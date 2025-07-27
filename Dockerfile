@@ -1,35 +1,40 @@
-FROM php:8.3-fpm
+FROM php:8.2-fpm
 
-# Set working directory
-WORKDIR /var/www
+# Node.js install
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get update && apt-get install -y nodejs
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
+# Install system deps
+RUN apt-get install -y \
     git \
     curl \
-    libpng-dev \
-    libjpeg-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
     unzip \
-    libzip-dev \
-    && docker-php-ext-install pdo_mysql mbstring zip exif pcntl bcmath gd
+    zip \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev
 
-# Install Composer
+# Install PHP extensions
+RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
+
+# Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy project files
-COPY . /var/www
+# Set workdir
+WORKDIR /var/www
 
-# Install Laravel dependencies
-RUN composer install --optimize-autoloader --no-dev
+# Copy app
+COPY . .
 
-# Permissions
-RUN chown -R www-data:www-data /var/www
+# Install PHP deps
+RUN composer install --no-dev --optimize-autoloader
 
-# Expose Laravel development server port
+# Install JS deps and build
+RUN npm install && npm run build
+
+# Set permissions
+RUN chmod -R 777 storage bootstrap/cache
+
 EXPOSE 8000
 
-# Run Laravel dev server
-CMD php artisan serve --host=0.0.0.0 --port=8000
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
