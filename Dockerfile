@@ -1,20 +1,17 @@
-FROM php:8.3-cli
+FROM php:8.3-fpm
 
+# Set working directory
 WORKDIR /var/www
 
-# Install dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libjpeg-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip \
-    libzip-dev \
-    npm \
-    nodejs \
+    git curl zip unzip libzip-dev \
+    libpng-dev libjpeg-dev libfreetype6-dev \
+    libonig-dev libxml2-dev \
+    npm nginx supervisor
+
+# Install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo_mysql mbstring zip exif pcntl bcmath gd
 
 # Install Composer
@@ -32,8 +29,11 @@ RUN composer install --optimize-autoloader --no-dev
 # Build frontend assets
 RUN npm install && npm run build
 
-# Expose Laravel port
-EXPOSE 8080
+# Copy nginx and supervisor config
+COPY deploy/render/nginx.conf /etc/nginx/sites-available/default
+COPY deploy/render/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Start Laravel dev server
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
+# Expose web port
+EXPOSE 80
+
+CMD ["/usr/bin/supervisord"]
