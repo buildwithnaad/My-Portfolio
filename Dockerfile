@@ -33,11 +33,11 @@ RUN composer install --optimize-autoloader --no-dev
 RUN npm install && npm run build
 
 # Move to public dir
-WORKDIR /var/www/public
+WORKDIR /var/www
 
 # Expose port
 EXPOSE 8080
 
 # Start server
 CMD php /var/www/artisan serve --host=0.0.0.0 --port=8080 > /dev/stdout 2>&1
-php artisan serve --host=0.0.0.0 --port=8080
+
