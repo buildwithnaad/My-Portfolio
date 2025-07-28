@@ -4,7 +4,8 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "prod": "vite build"
     },
     "devDependencies": {
         "@tailwindcss/postcss": "^4.1.11",
