@@ -50,4 +50,4 @@ RUN chmod -R 775 storage bootstrap/cache \
 EXPOSE 10000
 
 # Start Laravel server (production use only temporarily)
-CMD ["php", "-S", "0.0.0.0:10000", "-t", "public"]
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=10000"]
