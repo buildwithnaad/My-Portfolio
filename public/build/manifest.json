@@ -1,6 +1,12 @@
 {
+  "public/assets/css/style.css": {
+    "file": "assets/style-l0sNRNKZ.js",
+    "name": "style",
+    "src": "public/assets/css/style.css",
+    "isEntry": true
+  },
   "resources/css/app.css": {
-    "file": "assets/app-CC5gO9G8.css",
+    "file": "assets/app-DzeMazi3.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
